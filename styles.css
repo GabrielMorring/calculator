@@ -1,0 +1,55 @@
+body {
+}
+
+h1 {
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px auto;
+  width: 381px;
+  padding: 12px;
+  background-color: black;
+  border-radius: 7px;
+}
+
+.display {
+  background-color: white;
+  text-align: right;
+  border-radius: 7px;
+  margin-bottom: 12px;
+  padding: 10px;
+  font-weight: 900;
+}
+
+.upperDisplay {
+  height: 40px;
+  font-size: 24px;
+}
+
+.lowerDisplay {
+  height: 80px;
+  font-size: 48px;
+}
+
+.buttons {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 7px;
+}
+
+.buttons button {
+  flex: 0 0 auto;
+  width: 90px;
+  height: 90px;
+  border: 0px;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: xx-large;
+}
+
+.stoButton {
+  font-size: x-large !important;
+}
