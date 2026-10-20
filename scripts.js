@@ -1,5 +1,7 @@
 const NUMBER = "1234567890";
 const OPERATOR = "+-/X";
+const STORE = "123";
+const RECALL = "456";
 
 let operandA = { value: null };
 let operator;
@@ -8,6 +10,11 @@ let operandB = { value: null };
 let currentOperand = operandA;
 
 let addPoint = false;
+let storeMode = false;
+
+let register1 = 0;
+let register2 = 0;
+let register3 = 0;
 
 const upperDisplay = document.querySelector(".upperDisplay");
 const lowerDisplay = document.querySelector(".lowerDisplay");
@@ -59,7 +66,47 @@ function operate(a, operator, b) {
   return result;
 }
 
+function storeRegister(register) {
+  switch (register) {
+    case "1":
+      register1 = currentOperand.value;
+      break;
+    case "2":
+      register2 = currentOperand.value;
+      break;
+    case "3":
+      register3 = currentOperand.value;
+      break;
+  }
+}
+
+function recallRegister(register) {
+  switch (register) {
+    case "4":
+      currentOperand.value = register1;
+      break;
+    case "5":
+      currentOperand.value = register2;
+      break;
+    case "6":
+      currentOperand.value = register3;
+      break;
+  }
+  lowerDisplay.textContent = currentOperand.value;
+}
+
 function handleButtonClick(event) {
+  if (storeMode) {
+    if (STORE.includes(event.target.textContent)) {
+      storeRegister(event.target.textContent);
+    }
+    if (RECALL.includes(event.target.textContent)) {
+      recallRegister(event.target.textContent);
+    }
+    storeMode = false;
+    return;
+  }
+
   if (!Number.isFinite(Number(operandA.value)) && operandA.value !== null) {
     operandA.value = null;
   }
@@ -161,6 +208,7 @@ function handleCA() {
 }
 
 function handleC() {
+  if (typeof currentOperand.value !== "string") return;
   if (currentOperand.value !== null) {
     currentOperand.value = currentOperand.value.slice(0, -1);
     lowerDisplay.textContent = currentOperand.value;
@@ -170,7 +218,9 @@ function handleC() {
   }
 }
 
-function handleStore() {}
+function handleStore() {
+  storeMode = true;
+}
 
 function handlePoint() {
   if (currentOperand.value === null) {
