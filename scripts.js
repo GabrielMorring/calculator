@@ -1,9 +1,10 @@
 const NUMBER = "1234567890";
 const OPERATOR = "+-/X";
 
-let operandA;
+let operandA = { value: null };
 let operator;
-let operandB;
+let operandB = { value: null };
+let currentOperand = operandA;
 
 const upperDisplay = document.querySelector(".upperDisplay");
 const lowerDisplay = document.querySelector(".lowerDisplay");
@@ -77,28 +78,69 @@ buttons.forEach((button) =>
 );
 
 function handleNumber(num) {
-  if (typeof operandA !== "string") {
-    operandA = num;
+  if (typeof currentOperand.value !== "string") {
+    currentOperand.value = num;
   } else {
-    operandA += num;
+    currentOperand.value += num;
   }
-  lowerDisplay.textContent = operandA;
+  lowerDisplay.textContent = currentOperand.value;
 }
 
 function handleOperator(op) {
   if (op === "X") {
     op = "*";
   }
+  if (currentOperand === operandA) {
+    operator = op;
+    currentOperand = operandB;
+    return;
+  }
+  if (currentOperand === operandB) {
+    handleSubmit();
+    operator = op;
+    currentOperand = operandB;
+  }
 }
 
-function handleCA() {}
+function handleCA() {
+  currentOperand = operandA;
+  operandA.value = null;
+  operator = null;
+  operandB.value = null;
+  upperDisplay.textContent = "";
+  lowerDisplay.textContent = "";
+}
 
-function handleC() {}
+function handleC() {
+  if (currentOperand.value !== null) {
+    currentOperand.value = currentOperand.value.slice(0, -1);
+    lowerDisplay.textContent = currentOperand.value;
+    if (currentOperand.value === "") {
+      currentOperand.value = null;
+    }
+  }
+}
 
 function handleStore() {}
 
 function handlePoint() {}
 
-function flipSign() {}
+function flipSign() {
+  if (currentOperand.value !== null) {
+    if (currentOperand.value[0] === "-") {
+      currentOperand.value = currentOperand.value.slice(1);
+    } else {
+      currentOperand.value = "-" + currentOperand.value;
+    }
+    lowerDisplay.textContent = currentOperand.value;
+  }
+}
 
-function handleSubmit() {}
+function handleSubmit() {
+  operandA.value = operate(operandA.value, operator, operandB.value);
+  lowerDisplay.textContent = operandA.value;
+  operator = null;
+  //   operandA.value = null;
+  operandB.value = null;
+  currentOperand = operandA;
+}
