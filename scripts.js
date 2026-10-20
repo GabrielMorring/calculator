@@ -4,7 +4,10 @@ const OPERATOR = "+-/X";
 let operandA = { value: null };
 let operator;
 let operandB = { value: null };
+// currentOperand is a reference, so changing currentOperand.value will change operandA.value. If currentOperand is set to equal operandB then it will change operandB.value
 let currentOperand = operandA;
+
+let addPoint = false;
 
 const upperDisplay = document.querySelector(".upperDisplay");
 const lowerDisplay = document.querySelector(".lowerDisplay");
@@ -29,19 +32,37 @@ function divide(a, b) {
 function operate(a, operator, b) {
   a = +a;
   b = +b;
+  let result;
   switch (operator) {
     case "+":
-      return add(a, b);
+      result = add(a, b);
+      break;
     case "-":
-      return subtract(a, b);
+      result = subtract(a, b);
+      break;
     case "*":
-      return multiply(a, b);
+      result = multiply(a, b);
+      break;
     case "/":
-      return divide(a, b);
+      result = divide(a, b);
+      break;
   }
+
+  if (result > 9999999999999) {
+    return "too large";
+  }
+  if (result.toString().length > 13) {
+    let num = Math.floor(result);
+    num = num.toString();
+    return result.toFixed(13 - num.length);
+  }
+  return result;
 }
 
 function handleButtonClick(event) {
+  if (!Number.isFinite(Number(operandA.value)) && operandA.value !== null) {
+    operandA.value = null;
+  }
   if (NUMBER.includes(event.target.textContent)) {
     handleNumber(event.target.textContent);
     return;
@@ -63,6 +84,7 @@ function handleButtonClick(event) {
       break;
     case ".":
       handlePoint();
+      break;
     case "+/-":
       flipSign();
       break;
@@ -78,27 +100,54 @@ buttons.forEach((button) =>
 );
 
 function handleNumber(num) {
+  if (
+    (currentOperand.value === null ||
+      typeof currentOperand.value === "number") &&
+    addPoint
+  ) {
+    currentOperand.value = "0." + num;
+    addPoint = false;
+    lowerDisplay.textContent = currentOperand.value;
+    return;
+  }
   if (typeof currentOperand.value !== "string") {
     currentOperand.value = num;
   } else {
-    currentOperand.value += num;
+    if (currentOperand.value.length > 13) return;
+    if (addPoint) {
+      currentOperand.value = currentOperand.value + "." + num;
+      addPoint = false;
+    } else {
+      currentOperand.value += num;
+    }
   }
   lowerDisplay.textContent = currentOperand.value;
 }
 
 function handleOperator(op) {
+  let correctedOp = op;
   if (op === "X") {
-    op = "*";
+    correctedOp = "*";
   }
+
+  if (operandA.value === null) return;
   if (currentOperand === operandA) {
-    operator = op;
+    operator = correctedOp;
+    upperDisplay.textContent = operandA.value + " " + op;
     currentOperand = operandB;
     return;
   }
-  if (currentOperand === operandB) {
+  if (currentOperand === operandB && operandB.value !== null) {
     handleSubmit();
-    operator = op;
+    operator = correctedOp;
+    upperDisplay.textContent = operandA.value + " " + op;
+
     currentOperand = operandB;
+    return;
+  }
+  if (currentOperand === operandB && operandB.value === null) {
+    operator = correctedOp;
+    upperDisplay.textContent = operandA.value + " " + op;
   }
 }
 
@@ -123,7 +172,18 @@ function handleC() {
 
 function handleStore() {}
 
-function handlePoint() {}
+function handlePoint() {
+  if (currentOperand.value === null) {
+    addPoint = true;
+    return;
+  }
+  if (typeof currentOperand.value === "number") {
+    addPoint = true;
+    return;
+  }
+  if (currentOperand.value.includes(".")) return;
+  addPoint = true;
+}
 
 function flipSign() {
   if (currentOperand.value !== null) {
@@ -139,8 +199,8 @@ function flipSign() {
 function handleSubmit() {
   operandA.value = operate(operandA.value, operator, operandB.value);
   lowerDisplay.textContent = operandA.value;
+  upperDisplay.textContent = "";
   operator = null;
-  //   operandA.value = null;
   operandB.value = null;
   currentOperand = operandA;
 }
